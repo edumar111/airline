@@ -16,7 +16,9 @@ export class App extends Component {
         this.state = {
             account: undefined,
             balance: 0,
-            flights: []
+            flights: [],
+            customerFlights: [],
+            refundableEther: 0
         }
     }
     async componentDidMount() {
@@ -28,12 +30,23 @@ export class App extends Component {
         //console.log(this.web3.version);
         var account = (await this.web3.eth.getAccounts())[0];
         console.log(account);
+        //obervando eventos de metamask
+        this.web3.currentProvider.publicConfigStore.on('update', async function(event) {
+            this.setState({
+                account: event.selectedAddress.toLowerCase()
+            }, () => {
+                this.load();
+            });
+        }.bind(this));
+
+
         this.setState({
             account: account.toLowerCase()
         }, () => {
             this.load();
         });
     }
+
     async getBalance() {
         let weiBalance = await this.web3.eth.getBalance(this.state.account);
         this.setState({
@@ -46,6 +59,23 @@ export class App extends Component {
             flights: flights
         });
     }
+    async getRefundableEther() {
+        let refundableEther = await this.airlineService.getRefundableEther(this.state.account);
+        this.setState({
+            refundableEther: this.toEther(refundableEther)
+        });
+
+    }
+    async refundLoyaltyPoints() {
+        await this.airlineService.redeemLoyaltyPoints(this.state.account);
+    }
+    async getCustomerFlights() {
+        let customerFlights = await this.airlineService.getCustomerFlights(this.state.account);
+
+        this.setState({
+            customerFlights: customerFlights
+        });
+    }
     async buyFlight(flightIndex, flight) {
         console.log(flightIndex);
         console.log(flight.name);
@@ -54,6 +84,8 @@ export class App extends Component {
     async load() {
         this.getBalance();
         this.getFlights();
+        this.getCustomerFlights();
+        this.getRefundableEther();
     }
     render() {
         return <React.Fragment >
@@ -76,9 +108,12 @@ export class App extends Component {
             div className = "col-sm" >
             <
             Panel title = "Loyalty points - refundable ether" >
-
             <
-            /Panel> < /
+            span > { this.state.refundableEther }
+        eth < /span>  <
+        button className = "btn btn-sm bg-success text-white"
+        onClick = { this.refundLoyaltyPoints.bind(this) } > Refund < /button> < /
+        Panel > < /
         div > <
             /div> <
         div className = "row" >
@@ -103,9 +138,14 @@ export class App extends Component {
         div > <
             div className = "col-sm" >
             <
-            Panel title = "Your flights" >
+            Panel title = "Your flights" > {
+                this.state.customerFlights.map((flight, i) => {
+                        return <div key = { i } > { flight.name } - cost: { flight.price } <
+                            /div>
+                    }
 
-            <
+                )
+            } <
             /Panel> < /
         div > <
             /div> < /
