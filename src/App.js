@@ -3,6 +3,7 @@ import Panel from "./Panel";
 import getWeb3 from "./getWeb3";
 import AirlineContract from "./airline";
 import { AirlineService } from "./airlineService";
+import { ToastContainer } from "react-toastr";
 const converter = (web3) => {
     return (value) => {
         return web3.utils.fromWei(value.toString(), 'ether');
@@ -30,6 +31,17 @@ export class App extends Component {
         //console.log(this.web3.version);
         var account = (await this.web3.eth.getAccounts())[0];
         console.log(account);
+
+        //event
+        let flightPurchased = this.airline.FlightPurchased();
+        flightPurchased.watch(function(err, result) {
+            const { customer, price, flight } = result.args;
+            if (customer === this.state.account) {
+                console.log(`you parchased a flight to ${flight} with a cost of ${price}`);
+            } else {
+                this.continer.success(`last customer purchased a flight to ${flight} with a cost of ${price}`, 'Flight information');
+            }
+        }.bind(this));
         //obervando eventos de metamask
         this.web3.currentProvider.publicConfigStore.on('update', async function(event) {
             this.setState({
@@ -148,7 +160,13 @@ export class App extends Component {
             } <
             /Panel> < /
         div > <
-            /div> < /
+            /div> <
+        ToastContainer ref = {
+            (input) => this.continer = input
+        }
+        className = "toast-top-right" >
+            <
+            /ToastContainer> < /
         React.Fragment >
     }
 }
