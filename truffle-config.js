@@ -1,6 +1,7 @@
-const HDWalletProvider = = require("truffle-hdwallet-provider");
+const HDWalletProvider =  require("truffle-hdwallet-provider");
 
-var mnemonic = 'shell traffic raven bulb route clip pelican rich cross seek ball reopen';
+var mnemonic = 'brand tail can skill write cash order dad robot omit history clay';
+
 module.exports = {
     networks: {
         development: {
@@ -10,7 +11,8 @@ module.exports = {
             gas: 2000000
         },
         rinkeby: {
-            provider: network_id: 4,
+            provider: () => new  HDWalletProvider(mnemonic,"https://rinkeby.infura.io/v3/d28d067b389343e493fc51a68c8c38ef"),
+            network_id: 4,
         }
     }
 }

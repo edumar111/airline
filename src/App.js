@@ -65,12 +65,14 @@ export class App extends Component {
             balance: this.toEther(weiBalance)
         });
     }
+
     async getFlights() {
         let flights = await this.airlineService.getFlights();
         this.setState({
             flights: flights
         });
     }
+
     async getRefundableEther() {
         let refundableEther = await this.airlineService.getRefundableEther(this.state.account);
         this.setState({
@@ -78,9 +80,11 @@ export class App extends Component {
         });
 
     }
+
     async refundLoyaltyPoints() {
         await this.airlineService.redeemLoyaltyPoints(this.state.account);
     }
+
     async getCustomerFlights() {
         let customerFlights = await this.airlineService.getCustomerFlights(this.state.account);
 
@@ -88,11 +92,11 @@ export class App extends Component {
             customerFlights: customerFlights
         });
     }
+
     async buyFlight(flightIndex, flight) {
-        console.log(flightIndex);
-        console.log(flight.name);
         await this.airlineService.buyFlight(flightIndex, this.state.account, flight.price);
     }
+
     async load() {
         this.getBalance();
         this.getFlights();
